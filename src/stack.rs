@@ -1,4 +1,4 @@
-struct TypeStack;
+pub struct TypeStack;
 
 trait Pop<E, R> {
     fn pop(self) -> (E, R);
@@ -20,12 +20,13 @@ impl<E, S> Push<E> for S {
     }
 }
 
-fn main() {
+#[test]
+fn test_basic() {
     let q = TypeStack.push(Some(1u32)).push("thing").push(true);
     let (b, q) = q.pop();
-    println!("{}", b);
+    assert_eq!(true, b);
     let (s, q) = q.pop();
-    println!("{}", s);
+    assert_eq!("thing", s);
     let (mu, TypeStack) = q.pop();
-    println!("{}", mu.unwrap());
+    assert_eq!(1u32, mu.unwrap());
 }

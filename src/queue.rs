@@ -1,6 +1,6 @@
-struct TypeQueue;
+pub struct TypeQueue;
 
-trait PopFront<E, R> {
+pub trait PopFront<E, R> {
     type Popped;
 
     fn pop_front(self) -> (E, Self::Popped);
@@ -25,7 +25,7 @@ impl<E, E1, E2, R, R2> PopFront<E, R> for (E1, (E2, R2))
     }
 }
 
-trait PushBack<E, I> {
+pub trait PushBack<E, I> {
     fn push_back(self, insert: E) -> I;
 }
 
@@ -35,12 +35,13 @@ impl<E, I> PushBack<E, (E, I)> for I {
     }
 }
 
-fn main() {
+#[test]
+fn test_basic() {
     let q = TypeQueue.push_back(Some(1u32)).push_back("thing").push_back(true);
     let (mu, q) = q.pop_front();
-    println!("{}", mu.unwrap());
+    assert_eq!(1u32, mu.unwrap());
     let (s, q) = q.pop_front();
-    println!("{}", s);
+    assert_eq!("thing", s);
     let (b, TypeQueue) = q.pop_front();
-    println!("{}", b);
+    assert_eq!(true, b);
 }
