@@ -1,44 +1,46 @@
-trait Reduce<E, R> {
-    type Reduced;
+struct TypeQueue;
 
-    fn pop(self) -> (E, Self::Reduced);
+trait PopFront<E, R> {
+    type Popped;
+
+    fn pop_front(self) -> (E, Self::Popped);
 }
 
-impl<E> Reduce<E, ()> for (E, ()) {
-    type Reduced = ();
+impl<E> PopFront<E, TypeQueue> for (E, TypeQueue) {
+    type Popped = TypeQueue;
 
-    fn pop(self) -> (E, Self::Reduced) {
-        (self.0, ())
+    fn pop_front(self) -> (E, Self::Popped) {
+        (self.0, TypeQueue)
     }
 }
 
-impl<E, E1, E2, R, R2> Reduce<E, R> for (E1, (E2, R2))
-    where (E2, R2): Reduce<E, R>
+impl<E, E1, E2, R, R2> PopFront<E, R> for (E1, (E2, R2))
+    where (E2, R2): PopFront<E, R>
 {
-    type Reduced = (E1, <(E2, R2) as Reduce<E, R>>::Reduced);
+    type Popped = (E1, <(E2, R2) as PopFront<E, R>>::Popped);
 
-    fn pop(self) -> (E, Self::Reduced) {
-        let (e, q) = self.1.pop();
+    fn pop_front(self) -> (E, Self::Popped) {
+        let (e, q) = self.1.pop_front();
         (e, (self.0, q))
     }
 }
 
-trait Increase<E, I> {
-    fn push(self, insert: E) -> I;
+trait PushBack<E, I> {
+    fn push_back(self, insert: E) -> I;
 }
 
-impl<E, I> Increase<E, (E, I)> for I {
-    fn push(self, insert: E) -> (E, I) {
+impl<E, I> PushBack<E, (E, I)> for I {
+    fn push_back(self, insert: E) -> (E, I) {
         (insert, self)
     }
 }
 
 fn main() {
-    let q = ().push(Some(1u32)).push("thing").push(true);
-    let (mu, q) = q.pop();
+    let q = TypeQueue.push_back(Some(1u32)).push_back("thing").push_back(true);
+    let (mu, q) = q.pop_front();
     println!("{}", mu.unwrap());
-    let (s, q) = q.pop();
+    let (s, q) = q.pop_front();
     println!("{}", s);
-    let (b, ()) = q.pop();
+    let (b, TypeQueue) = q.pop_front();
     println!("{}", b);
 }
