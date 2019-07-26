@@ -20,7 +20,7 @@
 //! let (s, q) = q.pop();
 //! assert_eq!(true, s);
 //! // true →
-//! let (s, StackQue(EmptySQ)) = q.pop_front();
+//! let (s, EmptySQ) = q.pop_front();
 //! assert_eq!("thing", s);
 //! ```
 
@@ -39,12 +39,14 @@ pub trait Push<E, I> {
     fn push(self, insert: E) -> I;
 }
 
+// Case: Push onto empty stack.
 impl<E> Push<E, StackQue<(E, EmptySQ)>> for EmptySQ {
     fn push(self, insert: E) -> StackQue<(E, EmptySQ)> {
         StackQue((insert, EmptySQ))
     }
 }
 
+// Case: Push onto non-empty stack.
 impl<E, I> Push<E, StackQue<(E, I)>> for StackQue<I> {
     fn push(self, insert: E) -> StackQue<(E, I)> {
         StackQue((insert, self.0))
@@ -55,11 +57,19 @@ impl<E, I> Push<E, StackQue<(E, I)>> for StackQue<I> {
 /// `pop()` operation. From a queue's point of view,
 /// `pop()` is "`pop_back()`".
 pub trait Pop<E, R> {
-    fn pop(self) -> (E, StackQue<R>);
+    fn pop(self) -> (E, R);
 }
 
-impl<E, R> Pop<E, R> for StackQue<(E, R)> {
-    fn pop(self) -> (E, StackQue<R>) {
+// Case: Pop last element.
+impl<E> Pop<E, EmptySQ> for StackQue<(E, EmptySQ)> {
+    fn pop(self) -> (E, EmptySQ) {
+        (self.0 .0, EmptySQ)
+    }
+}
+
+// Case: Pop non-last element.
+impl<E, E1, R1> Pop<E, StackQue<(E1, R1)>> for StackQue<(E, (E1, R1))> {
+    fn pop(self) -> (E, StackQue<(E1, R1)>) {
         (self.0 .0, StackQue(self.0 .1))
     }
 }
@@ -72,10 +82,18 @@ pub trait PopFront<E, R> {
     fn pop_front(self) -> (E, Self::Popped);
 }
 
-impl<E, Q, R> PopFront<E, R> for StackQue<Q>
-    where Q: PopFront<E, R>
+impl<E> PopFront<E, EmptySQ> for StackQue<(E, EmptySQ)> {
+    type Popped = EmptySQ;
+
+    fn pop_front(self) -> (E, Self::Popped) {
+        (self.0 .0, EmptySQ)
+    }
+}
+
+impl<E, E1, E2, R, R2> PopFront<E, R> for StackQue<(E1, (E2, R2))>
+    where (E1, (E2, R2)): PopFront<E, R>
 {
-    type Popped = StackQue<<Q as PopFront<E, R>>::Popped>;
+    type Popped = StackQue<<(E1, (E2, R2)) as PopFront<E, R>>::Popped>;
 
     fn pop_front(self) -> (E, Self::Popped) {
         let (e, q) = self.0.pop_front();
@@ -109,7 +127,7 @@ fn test_stack_basic() {
     assert_eq!(true, b);
     let (s, q) = q.pop();
     assert_eq!("thing", s);
-    let (mu, StackQue(EmptySQ)) = q.pop();
+    let (mu, EmptySQ) = q.pop();
     assert_eq!(1u32, mu.unwrap());
 }
 
@@ -120,6 +138,6 @@ fn test_que_basic() {
     assert_eq!(1u32, mu.unwrap());
     let (s, q) = q.pop_front();
     assert_eq!("thing", s);
-    let (b, StackQue(EmptySQ)) = q.pop_front();
+    let (b, EmptySQ) = q.pop_front();
     assert_eq!(true, b);
 }
