@@ -12,4 +12,5 @@ Trait implementations here are such that only legitimate
 `StackQue`s can be pushed onto: this is a consequence of
 the private field of `StackQue` and the orphan rule.
 
-This is all a bad idea.
+This is all a bad idea, inspired by a Reddit post that I
+seem to have lost the link to.
