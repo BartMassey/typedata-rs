@@ -12,5 +12,9 @@ Trait implementations here are such that only legitimate
 `StackQue`s can be pushed onto: this is a consequence of
 the private field of `StackQue` and the orphan rule.
 
-This is all a bad idea, inspired by a Reddit post that I
-seem to have lost the link to.
+This is all a bad idea, inspired by a Reddit [post](https://www.reddit.com/r/rust/comments/cnzruy/what_would_be_the_best_way_to_clone_a_3d_vector/).
+
+## License
+
+This program is licensed under the "MIT License". Please see
+the file `LICENSE` in this distribution for license terms.
